@@ -1,0 +1,31 @@
+{
+  "name": "tryyel-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RISHIK92/tryyel-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RISHIK92/tryyel-backend/issues"
+  },
+  "homepage": "https://github.com/RISHIK92/tryyel-backend#readme",
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.19.0",
+    "razorpay": "^2.9.6"
+  }
+}
