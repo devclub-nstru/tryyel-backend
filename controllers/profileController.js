@@ -30,10 +30,10 @@ const getProfile = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    console.error("Error in getProfile:", error);
+    console.error("Error in getting profile ", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Internal server error in getting profile",
     });
   }
 };
@@ -69,13 +69,14 @@ const updateProfile = async (req, res) => {
       data: updated,
     });
   } catch (error) {
-    console.error("Error in updateProfile:", error);
+    console.error("Error in updating profile ", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Internal server error in updating profile",
     });
   }
 };
+
 const updateProfilePicture = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -100,10 +101,10 @@ const updateProfilePicture = async (req, res) => {
       data: updated,
     });
   } catch (error) {
-    console.error("Error in updateProfilePicture:", error);
+    console.error("Error in updating profile picture ", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Internal server error in updating profile picture",
     });
   }
 };
@@ -120,11 +121,11 @@ const deleteProfile = async (req, res) => {
       message: "User account deleted successfully",
     });
   } catch (error) {
-    console.error("Error in deleteProfile:", error);
+    console.error("Error in deleting profile ", error);
 
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Internal server error in deleting profile",
     });
   }
 };

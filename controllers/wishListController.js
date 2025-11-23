@@ -47,10 +47,10 @@ const addToWishlist = async (req, res) => {
       data: item,
     });
   } catch (error) {
-    console.error("Error in addToWishlist:", error);
+    console.error("Error in adding to wishlist ", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Internal server error in adding to wish list",
     });
   }
 };
@@ -74,10 +74,10 @@ const getWishlist = async (req, res) => {
       data: wishlist,
     });
   } catch (error) {
-    console.error("Error in getWishlist:", error);
+    console.error("Error in getWishlist ", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Internal server error in adding to wishlist",
     });
   }
 };
@@ -110,10 +110,10 @@ const removeFromWishlist = async (req, res) => {
       message: "Removed from wishlist",
     });
   } catch (error) {
-    console.error("Error in removeFromWishlist:", error);
+    console.error("Error in removing from wishlist ", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Internal server error in removing from wish list",
     });
   }
 };
@@ -135,10 +135,10 @@ const checkWishlistStatus = async (req, res) => {
       isWishlisted: !!exists,
     });
   } catch (error) {
-    console.error("Error in checkWishlistStatus:", error);
+    console.error("Error in checking wishlist status:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Internal server error in checking wishlist status",
     });
   }
 };

@@ -13,8 +13,10 @@ const createBrand = async (req, res) => {
 
     res.status(201).json({ success: true, brand });
   } catch (error) {
-    console.error("Create Brand Error:", error);
-    res.status(500).json({ message: "Server Error" });
+    console.error("Error in creating brand ", error);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error in creating brand" });
   }
 };
 
@@ -26,8 +28,10 @@ const getBrands = async (req, res) => {
 
     res.json({ success: true, brands });
   } catch (error) {
-    console.error("Get Brands Error:", error);
-    res.status(500).json({ message: "Server Error" });
+    console.error("Error in getting all brands ", error);
+    res.status(500).json({
+      message: "Internal Server Error in creating getting all brands",
+    });
   }
 };
 
@@ -43,8 +47,10 @@ const getBrand = async (req, res) => {
 
     res.json({ success: true, brand });
   } catch (error) {
-    console.error("Get Brand Error:", error);
-    res.status(500).json({ message: "Server Error" });
+    console.error("Error in getting brand ", error);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error in getting single brand" });
   }
 };
 
