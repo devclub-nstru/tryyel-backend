@@ -1,49 +1,132 @@
 const prisma = require("../config.js");
 
-const createSubcategory = async (req, res) => {
+const addSubCategory = async (req, res) => {
   try {
-    const { categoryId } = req.params;
-    const { name } = req.body;
-    if (!name || !name.trim()) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Sub category name is required" });
-    }
-    const catId = Number(categoryId);
-    const category = await prisma.category.findUnique({ where: { id: catId } });
-    if (!category) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No parent category found" });
-    }
-    const existingSubCategory = await prisma.subCategory.findUnique({
-      where: {
-        name: { equals: name.trim(), mode: "insensitive" },
-        categoryId: catId,
-      },
-    });
-    if (existingSubCategory) {
+    const { name, categoryId, collectionId } = req.body;
+
+    if (!name || !categoryId) {
       return res.status(400).json({
         success: false,
-        message: "Subcategory with this name already exists for this category",
+        message: "Subcategory name and categoryId are required",
       });
     }
-    const newSubCategory = await prisma.subCategory.create({
-      data: {
-        name: name.trim(),
-        categoryId: catId,
+
+    const exists = await prisma.subCategory.findFirst({
+      where: {
+        name,
+        categoryId: Number(categoryId),
       },
     });
-    return res.status(200).json({
+
+    if (exists) {
+      return res.status(400).json({
+        success: false,
+        message: "SubCategory already exists under this category",
+      });
+    }
+
+    const newSubCategory = await prisma.subCategory.create({
+      data: {
+        name,
+        categoryId: Number(categoryId),
+        collectionId: collectionId ? Number(collectionId) : null,
+      },
+    });
+
+    return res.status(201).json({
       success: true,
-      message: "New sub category created",
+      message: "SubCategory created successfully",
       data: newSubCategory,
     });
   } catch (error) {
-    console.log("Error in creating sub category");
+    console.error("Error adding subcategory:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error in creating a subcategory",
+      message: "Internal server error while adding subcategory",
+    });
+  }
+};
+
+const getAllSubCategories = async (req, res) => {
+  try {
+    const subCategories = await prisma.subCategory.findMany({
+      include: {
+        category: true,
+        products: true,
+        collection: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: subCategories,
+    });
+  } catch (error) {
+    console.error("Error fetching subcategories:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error while fetching subcategories",
+    });
+  }
+};
+
+const getSubCategoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const subCategory = await prisma.subCategory.findUnique({
+      where: { id: Number(id) },
+      include: {
+        category: true,
+        products: true,
+        collection: true,
+      },
+    });
+
+    if (!subCategory) {
+      return res.status(404).json({
+        success: false,
+        message: "SubCategory not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: subCategory,
+    });
+  } catch (error) {
+    console.error("Error fetching subcategory:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error while fetching subcategory",
+    });
+  }
+};
+
+const updateSubCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, categoryId, collectionId } = req.body;
+
+    const updated = await prisma.subCategory.update({
+      where: { id: Number(id) },
+      data: {
+        ...(name && { name }),
+        ...(categoryId && { categoryId: Number(categoryId) }),
+        ...(collectionId && { collectionId: Number(collectionId) }),
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "SubCategory updated successfully",
+      data: updated,
+    });
+  } catch (error) {
+    console.error("Error updating subcategory:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error while updating subcategory",
     });
   }
 };
@@ -51,29 +134,28 @@ const createSubcategory = async (req, res) => {
 const deleteSubCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const subCategoryId = Number(id);
-    const existingSubCategory = await prisma.subCategory.findUnique({
-      where: { id: subCategoryId },
+
+    await prisma.subCategory.delete({
+      where: { id: Number(id) },
     });
-    if (!existingSubCategory) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Sub catergory not found" });
-    }
-    await prisma.subCategory.delete({ where: { id: subCategoryId } });
-    return res
-      .status(200)
-      .json({ success: false, message: "Sub category deleted successfully" });
+
+    return res.status(200).json({
+      success: true,
+      message: "SubCategory deleted successfully",
+    });
   } catch (error) {
-    console.log("Erorr in deleting sub category", error);
+    console.error("Error deleting subcategory:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error in deleting sub category",
+      message: "Internal server error while deleting subcategory",
     });
   }
 };
 
 module.exports = {
-  createSubcategory,
+  addSubCategory,
+  getAllSubCategories,
+  getSubCategoryById,
+  updateSubCategory,
   deleteSubCategory,
 };

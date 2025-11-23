@@ -17,7 +17,9 @@
   "homepage": "https://github.com/RISHIK92/tryyel-backend#readme",
   "description": "",
   "dependencies": {
+    "@huggingface/inference": "^4.13.3",
     "@prisma/client": "^6.19.0",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
