@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const collection = require("../controllers/collectionController");
-const auth = require("../middleware/auth");
+const collection = require("../controllers/collectionsController.js");
+const auth = require("../middleware/auth.js");
 
 router.post("/", auth, collection.createCollection);
 router.get("/", collection.getAllCollections);

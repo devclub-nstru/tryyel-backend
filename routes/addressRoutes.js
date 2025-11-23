@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const address = require("../controllers/addressController");
-const auth = require("../middleware/auth");
+const address = require("../controllers/addressController.js");
+const auth = require("../middleware/auth.js");
 
 router.post("/", auth, address.createAddress);
 router.put("/:id", auth, address.updateAddresses);

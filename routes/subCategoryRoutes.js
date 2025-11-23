@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const sub = require("../controllers/subCategoryController");
-const auth = require("../middleware/auth");
+const sub = require("../controllers/subCategoryController.js");
+const auth = require("../middleware/auth.js");
 
 router.post("/", auth, sub.addSubCategory);
 router.get("/", sub.getAllSubCategories);

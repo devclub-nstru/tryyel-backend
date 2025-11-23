@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-const protect = async (req, res, next) => {
+const auth = async (req, res, next) => {
   let token;
 
   if (
@@ -32,4 +32,4 @@ const protect = async (req, res, next) => {
 };
 
 // EXPORT FUNCTION DIRECTLY
-module.exports = protect;
+module.exports = auth;

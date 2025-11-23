@@ -89,7 +89,7 @@ const placeOrder = async (req, res) => {
 
 const getUserOrders = async (req, res) => {
   try {
-    const userId = req.body;
+    const userId = req.user.id;
     const orders = await prisma.order.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },

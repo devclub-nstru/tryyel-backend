@@ -1,7 +1,7 @@
 const prisma = require("../config.js");
 
 const getOrCreateCart = async (userId) => {
-  const cart = await prisma.cart.findUnique({ where: userId });
+  const cart = await prisma.cart.findUnique({ where: { userId } });
   if (!cart) {
     await prisma.cart.create({
       data: { userId },
@@ -91,7 +91,7 @@ const addToCart = async (req, res) => {
 const getCart = async (req, res) => {
   try {
     const userId = req.user.id;
-    const cart = await prisma.findUnique({
+    const cart = await prisma.cart.findUnique({
       where: { userId },
       include: {
         items: {

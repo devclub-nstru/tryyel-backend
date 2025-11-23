@@ -8,8 +8,8 @@ datasource db {
 }
 
 model User {
-  id                Int     @id
-  mobileNumber      Int
+  id                String     @id @default(uuid())
+  mobileNumber      String
   firstName         String?
   lastName          String?
   profilePictureUrl String?
@@ -105,7 +105,7 @@ model SubCategory {
 
 model Cart {
   id     Int        @id @default(autoincrement())
-  userId Int        @unique
+  userId String     @unique
   user   User       @relation(fields: [userId], references: [id])
   items  CartItem[]
 }
@@ -122,7 +122,7 @@ model CartItem {
 
 model Wishlist {
   id        Int @id @default(autoincrement())
-  userId    Int
+  userId    String
   productId Int
 
   user    User    @relation(fields: [userId], references: [id])
@@ -131,7 +131,7 @@ model Wishlist {
 
 model Order {
   id        Int         @id @default(autoincrement())
-  userId    Int
+  userId    String
   total     Float
   status    OrderStatus @default(PENDING)
   createdAt DateTime    @default(now())
@@ -176,7 +176,7 @@ model HomeCategory {
 
 model Transaction {
   id            Int      @id @default(autoincrement())
-  userId        Int
+  userId        String
   amount        Int
   paymentStatus Boolean
   date          DateTime
@@ -185,7 +185,7 @@ model Transaction {
 
 model Address {
   id        String  @id @default(uuid())
-  userId    Int
+  userId    String
   line1     String
   line2     String?
   city      String
@@ -209,7 +209,7 @@ enum OrderStatus {
 
 model Review {
   id        Int      @id @default(autoincrement())
-  userId    Int
+  userId    String
   productId Int
   rating    Int
   comment   String?

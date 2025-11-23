@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const review = require("../controllers/reviewController");
-const auth = require("../middleware/auth");
+const review = require("../controllers/reviewController.js");
+const auth = require("../middleware/auth.js");
 
 router.post("/", auth, review.addReview);
 router.put("/:id", auth, review.updateReview);

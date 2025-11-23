@@ -173,7 +173,7 @@ const setDefaultAddress = async (req, res) => {
     const userId = req.user.id;
     const { id } = req.params;
     const address = await prisma.address.findUnique({ where: { id } });
-    if (!address || address.id !== userId) {
+    if (!address || address.userId !== userId) {
       return res
         .status(400)
         .json({ success: false, message: "Address not found" });

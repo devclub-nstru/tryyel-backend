@@ -1,36 +1,26 @@
-// const prisma = require("../config.js");
+const prisma = require("../config.js");
 
-// const login = async (req, res) => {
-//   const { mobile, uid } = req.user;
+const checkUser = async (req, res) => {
+  const { uid, mobileNumber } = req.body;
 
-//   const user = await prisma.user.findUnique({
-//     where: { mobileNumber: mobile },
-//   });
-//   if (!user) {
-//     const newUser = await prisma.user.create({
-//       data: {
-//         id: uid,
-//         mobileNumber: mobile,
-//       },
-//     });
-//     if (newUser) {
-//       return res.status(401).json({ existingUser: false });
-//     }
-//   }
-//   return res.json({ existingUser: true, message: "Login Successful" });
-// };
+  const user = await prisma.user.findUnique({
+    where: { id: uid, mobileNumber },
+  });
 
-// module.exports = { login };
+  if (user) {
+    return res.status(200).json({ exists: true, user: user });
+  }
 
-const register = async (req, res) => {
-  res.send("Register OK");
-};
+  const createUser = await prisma.user.create({
+    data: {
+      id: uid,
+      mobileNumber,
+    },
+  });
 
-const login = async (req, res) => {
-  res.send("Login OK");
+  return res.status(200).json({ exists: false, user: createUser });
 };
 
 module.exports = {
-  register,
-  login,
+  checkUser,
 };
