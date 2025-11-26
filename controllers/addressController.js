@@ -4,18 +4,22 @@ const createAddress = async (req, res) => {
   try {
     const userId = req.user.id;
     const {
-      line1,
-      line2,
+      firstName,
+      lastName,
+      address,
+      locality,
+      phone,
       city,
       state,
       pincode,
       country = "India",
       isDefault = false,
     } = req.body;
-    if (!line1 || !city || !state || !pincode) {
+    if (!firstName || !lastName || !address || !city || !state || !pincode) {
       return res.status(400).json({
         success: false,
-        message: "line1, city, state, and pincode are required",
+        message:
+          "First name, last name, address, city, state, and pincode are required",
       });
     }
     if (isDefault) {
@@ -27,8 +31,11 @@ const createAddress = async (req, res) => {
     const newAddress = await prisma.address.create({
       data: {
         userId,
-        line1,
-        line2,
+        firstName,
+        lastName,
+        address,
+        locality,
+        phone,
         city,
         state,
         pincode,
@@ -85,24 +92,41 @@ const updateAddresses = async (req, res) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
-    const { line1, line2, city, state, pincode, country, isDefault } = req.body;
-    const address = await prisma.address.findUnique({ where: { id } });
-    if (!address || address.userId != userId) {
+    const {
+      firstName,
+      lastName,
+      address,
+      locality,
+      phone,
+      city,
+      state,
+      pincode,
+      country,
+      isDefault,
+    } = req.body;
+
+    const existingAddress = await prisma.address.findUnique({ where: { id } });
+    if (!existingAddress || existingAddress.userId != userId) {
       return res
         .status(404)
         .json({ success: false, message: "Address not found" });
     }
+
     if (isDefault) {
       await prisma.address.updateMany({
         where: { userId },
         data: { isDefault: false },
       });
     }
+
     const updatedAddress = await prisma.address.update({
       where: { id },
       data: {
-        line1,
-        line2,
+        firstName,
+        lastName,
+        address,
+        locality,
+        phone,
         city,
         state,
         pincode,
@@ -110,22 +134,15 @@ const updateAddresses = async (req, res) => {
         isDefault,
       },
     });
-    if (!updatedAddress) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Unable to update address" });
-    }
+
     return res.status(200).json({
-      success: false,
+      success: true,
       message: "Address updated successfully",
       data: updatedAddress,
     });
   } catch (error) {
-    console.log("Error while updating addresses ", error);
-    return res.status({
-      success: false,
-      message: "Internal Server Error while updating address",
-    });
+    console.log(error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -160,11 +177,8 @@ const deleteAddress = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Address deleted succesfully" });
   } catch (error) {
-    console.log("Error in deleting address ", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error in deleting address",
-    });
+    console.log(error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -175,27 +189,23 @@ const setDefaultAddress = async (req, res) => {
     const address = await prisma.address.findUnique({ where: { id } });
     if (!address || address.userId !== userId) {
       return res
-        .status(400)
+        .status(404)
         .json({ success: false, message: "Address not found" });
     }
     await prisma.address.updateMany({
       where: { userId },
       data: { isDefault: false },
     });
-    const updatedAddress = await prisma.address.update({
+    await prisma.address.update({
       where: { id },
       data: { isDefault: true },
     });
-    if (!updateAddresses) {
-      return res.status(400).json({ success: false, message: "" });
-    }
-    return res.status(200).json({
-      success: false,
-      message: "Default address set successfully",
-      data: updatedAddress,
-    });
+    return res
+      .status(200)
+      .json({ success: true, message: "Address set as default successfully" });
   } catch (error) {
-    console.log("Server error while setting default address ", error);
+    console.log(error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 

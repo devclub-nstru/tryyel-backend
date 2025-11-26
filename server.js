@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const sendOtp = require("./utils/sendOtp");
@@ -9,6 +10,7 @@ const prisma = require("./config.js");
 // Import Routes
 const authRoutes = require("./routes/authRoutes.js");
 const addressRoutes = require("./routes/addressRoutes.js");
+const bannerRoutes = require("./routes/bannerRoutes.js");
 const brandRoutes = require("./routes/brandRoutes.js");
 const cartRoutes = require("./routes/cartRoutes.js");
 const categoryRoutes = require("./routes/categoryRoutes.js");
@@ -26,7 +28,13 @@ const PORT = process.env.PORT || 4006;
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Your frontend URL
+    credentials: true,
+  })
+);
 
 // Mount Routes
 app.use("/api/health", (req, res) => {
@@ -34,6 +42,7 @@ app.use("/api/health", (req, res) => {
 });
 app.use("/api/auth", authRoutes);
 app.use("/api/address", addressRoutes);
+app.use("/api/banners", bannerRoutes);
 app.use("/api/brands", brandRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/categories", categoryRoutes);

@@ -2,13 +2,13 @@ const prisma = require("../config.js");
 
 const addHomeCategory = async (req, res) => {
   try {
-    const { categotyId } = req.body;
-    if (!categotyId) {
+    const { categoryId } = req.body;
+    if (!categoryId) {
       return res
         .status(400)
         .json({ success: false, message: "categoryId is required" });
     }
-    const catId = Number(categotyId);
+    const catId = Number(categoryId);
     const category = await prisma.category.findUnique({ where: { id: catId } });
     if (!category) {
       return res
@@ -24,12 +24,12 @@ const addHomeCategory = async (req, res) => {
         message: "Category already added to home categories",
       });
     }
-    const newHomeCategory = await prisma.homeCategory.create({
+    const homeCategory = await prisma.homeCategory.create({
       data: {
         categoryId: catId,
       },
     });
-    if (!newHomeCategory) {
+    if (!homeCategory) {
       return res
         .status(400)
         .json({ success: false, message: "Error in adding home category" });

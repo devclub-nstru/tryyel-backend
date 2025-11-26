@@ -54,7 +54,7 @@ const getAllCategories = async (req, res) => {
         .status(400)
         .json({ success: false, message: "No categories found" });
     }
-    return res.status(200).json({ success: false, data: categories });
+    return res.status(200).json({ success: true, data: categories });
   } catch (error) {
     console.log("Error in fetching all categories", error);
     return res.status(500).json({

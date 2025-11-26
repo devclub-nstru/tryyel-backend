@@ -46,9 +46,9 @@ const placeOrder = async (req, res) => {
       data: {
         userId,
         addressId,
-        payment: paymentId || null,
+        payment: paymentId,
+        status: "PENDING",
         total: totalAmount,
-        status: PENDING,
         items: {
           create: cart.items.map((item) => ({
             productId: item.productId,
@@ -104,7 +104,7 @@ const getUserOrders = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Unable to get user orders" });
     }
-    return res.status({
+    return res.status(200).json({
       success: true,
       message: "Successfully fetched user orders",
       data: orders,

@@ -62,16 +62,69 @@ const getWishlist = async (req, res) => {
     const wishlist = await prisma.wishlist.findMany({
       where: { userId },
       include: {
-        product: true,
+        product: {
+          include: {
+            colors: {
+              include: {
+                sizes: true,
+              },
+            },
+            brand: true,
+          },
+        },
       },
       orderBy: {
         id: "desc",
       },
     });
 
+    const wishlistWithPrices = wishlist.map((item) => {
+      const product = item.product;
+      let minPrice = Infinity;
+      let correspondingOriginalPrice = 0;
+
+      if (product.colors && product.colors.length > 0) {
+        product.colors.forEach((color) => {
+          if (color.sizes && color.sizes.length > 0) {
+            color.sizes.forEach((size) => {
+              if (size.price < minPrice) {
+                minPrice = size.price;
+                correspondingOriginalPrice = size.originalPrice || 0;
+              } else if (size.price === minPrice) {
+                if ((size.originalPrice || 0) > correspondingOriginalPrice) {
+                  correspondingOriginalPrice = size.originalPrice || 0;
+                }
+              }
+            });
+          }
+        });
+      }
+
+      if (minPrice === Infinity) minPrice = 0;
+
+      let discount = 0;
+      if (correspondingOriginalPrice > minPrice) {
+        discount = Math.round(
+          ((correspondingOriginalPrice - minPrice) /
+            correspondingOriginalPrice) *
+            100
+        );
+      }
+
+      return {
+        ...item,
+        product: {
+          ...product,
+          price: minPrice,
+          originalPrice: correspondingOriginalPrice,
+          discount,
+        },
+      };
+    });
+
     return res.status(200).json({
       success: true,
-      data: wishlist,
+      data: wishlistWithPrices,
     });
   } catch (error) {
     console.error("Error in getWishlist ", error);

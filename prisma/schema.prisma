@@ -10,8 +10,9 @@ datasource db {
 model User {
   id                String     @id @default(uuid())
   mobileNumber      String
-  firstName         String?
-  lastName          String?
+  dob               DateTime?
+  email             String?
+  name              String?
   profilePictureUrl String?
   age               Int?
   topSize           String?
@@ -34,7 +35,6 @@ model Product {
   shortDescription String?
   longDescription  String?
   stockAvailable   Int      @default(0)
-  sizes            String[]
   clicks           Int      @default(0)
   trending         Boolean  @default(false)
   createdAt        DateTime @default(now())
@@ -42,35 +42,48 @@ model Product {
   category    Category?    @relation(fields: [categoryId], references: [id])
   subCategory SubCategory? @relation(fields: [subCategoryId], references: [id])
 
-  cartItems       CartItem[]
-  orderItems      OrderItem[]
-  wishlist        Wishlist[]
-  productImages   ProductImage[]
-  productVariants ProductVariant[]
-  reviews         Review[]
-  collection      Collection?      @relation(fields: [collectionId], references: [id])
-  collectionId    Int?
-  brand           Brand?           @relation(fields: [brandId], references: [id])
-  brandId         Int?
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  wishlist      Wishlist[]
+  productImages ProductImage[]
+  colors        ProductColor[]
+  reviews       Review[]
+  collection    Collection?    @relation(fields: [collectionId], references: [id])
+  collectionId  Int?
+  brand         Brand?         @relation(fields: [brandId], references: [id])
+  brandId       Int?
 }
 
 model Brand {
   id           Int         @id @default(autoincrement())
   name         String      @unique
+  logoUrl      String?
   products     Product[]
   collection   Collection? @relation(fields: [collectionId], references: [id])
   collectionId Int?
 }
 
-model ProductVariant {
-  id        Int     @id @default(autoincrement())
+model ProductColor {
+  id        Int    @id @default(autoincrement())
   productId Int
-  size      String?
-  color     String?
-  stock     Int     @default(0)
-  price     Float
+  color     String
+  imageUrl  String?
 
-  product Product @relation(fields: [productId], references: [id])
+  product   Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sizes     ProductSize[]
+  cartItems CartItem[]
+}
+
+model ProductSize {
+  id      Int    @id @default(autoincrement())
+  colorId Int
+  size    String
+  stock   Int    @default(0)
+  price         Float
+  originalPrice Float?
+
+  color     ProductColor @relation(fields: [colorId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
 }
 
 model ProductImage {
@@ -85,6 +98,7 @@ model ProductImage {
 model Category {
   id            Int           @id @default(autoincrement())
   name          String
+  imageUrl      String?
   subCategories SubCategory[]
   products      Product[]
 
@@ -96,6 +110,7 @@ model Category {
 model SubCategory {
   id           Int         @id @default(autoincrement())
   name         String
+  imageUrl     String?
   categoryId   Int
   category     Category    @relation(fields: [categoryId], references: [id])
   products     Product[]
@@ -111,13 +126,17 @@ model Cart {
 }
 
 model CartItem {
-  id        Int @id @default(autoincrement())
-  cartId    Int
-  productId Int
-  quantity  Int @default(1)
+  id              Int @id @default(autoincrement())
+  cartId          Int
+  productId       Int
+  productColorId  Int?
+  productSizeId   Int?
+  quantity        Int @default(1)
 
-  cart    Cart    @relation(fields: [cartId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
+  cart         Cart         @relation(fields: [cartId], references: [id])
+  product      Product      @relation(fields: [productId], references: [id])
+  productColor ProductColor? @relation(fields: [productColorId], references: [id])
+  productSize  ProductSize?  @relation(fields: [productSizeId], references: [id])
 }
 
 model Wishlist {
@@ -186,8 +205,11 @@ model Transaction {
 model Address {
   id        String  @id @default(uuid())
   userId    String
-  line1     String
-  line2     String?
+  firstName String
+  lastName  String
+  address   String
+  locality  String?
+  phone     String?
   city      String
   state     String
   pincode   String
@@ -222,9 +244,12 @@ model Review {
 }
 
 model Collection {
-  id   Int            @id @default(autoincrement())
-  name String
-  type CollectionType
+  id         Int            @id @default(autoincrement())
+  name       String
+  type       CollectionType
+  buttonName String?
+  buttonLink String?
+  order      Int            @default(0)
 
   categories    Category[]
   products      Product[]
@@ -237,4 +262,14 @@ enum CollectionType {
   SubCategory
   Product
   Brand
+}
+
+model Banner {
+  id        Int      @id @default(autoincrement())
+  title     String?
+  imageUrl  String
+  link      String?
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
 }

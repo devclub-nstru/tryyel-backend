@@ -7,9 +7,10 @@ const getProfile = async (req, res) => {
       where: { id: userId },
       select: {
         id: true,
+        email: true,
         mobileNumber: true,
-        firstName: true,
-        lastName: true,
+        dob: true,
+        name: true,
         profilePictureUrl: true,
         age: true,
         gender: true,
@@ -27,7 +28,10 @@ const getProfile = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      data: user,
+      data: {
+        ...user,
+        dob: user.dob ? new Date(user.dob).toISOString().split("T")[0] : null,
+      },
     });
   } catch (error) {
     console.error("Error in getting profile ", error);
@@ -37,12 +41,14 @@ const getProfile = async (req, res) => {
     });
   }
 };
+
 const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const {
-      firstName,
-      lastName,
+      name,
+      email,
+      dob,
       age,
       gender,
       topSize,
@@ -53,8 +59,9 @@ const updateProfile = async (req, res) => {
     const updated = await prisma.user.update({
       where: { id: userId },
       data: {
-        ...(firstName && { firstName }),
-        ...(lastName && { lastName }),
+        ...(name && { name }),
+        ...(dob && { dob: new Date(dob).toISOString() }),
+        ...(email && { email }),
         ...(age && { age: Number(age) }),
         ...(gender && { gender }),
         ...(topSize && { topSize }),
