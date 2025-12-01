@@ -194,12 +194,16 @@ model HomeCategory {
 }
 
 model Transaction {
-  id            Int      @id @default(autoincrement())
-  userId        String
-  amount        Int
-  paymentStatus Boolean
-  date          DateTime
-  orders        Order[]
+  id                 Int      @id @default(autoincrement())
+  userId             String
+  amount             Int
+  paymentStatus      Boolean
+  date               DateTime
+  paymentMethod      String?
+  razorpayPaymentId  String?
+  razorpayOrderId    String?
+  razorpaySignature  String?
+  orders             Order[]
 }
 
 model Address {

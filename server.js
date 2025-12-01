@@ -21,6 +21,7 @@ const reviewRoutes = require("./routes/reviewRoutes.js");
 const subCategoryRoutes = require("./routes/subCategoryRoutes.js");
 const userRoutes = require("./routes/userRoutes.js");
 const wishlistRoutes = require("./routes/wishlistRoutes.js");
+const paymentRoutes = require("./routes/paymentRoutes.js");
 // const vtoRoutes = require("./routes/vtoRoutes.js"); // Assuming vtoRoutes is converted to CJS or handled
 
 const PORT = process.env.PORT || 4006;
@@ -53,6 +54,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/subcategories", subCategoryRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/payment", paymentRoutes);
 // app.use("/api/vto", vtoRoutes);
 
 const OTP_EXPIRY = 5 * 60 * 1000;

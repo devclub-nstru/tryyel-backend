@@ -31,7 +31,11 @@ const createRazorpayOrder = async (req, res) => {
       where: { userId },
       include: {
         items: {
-          include: { product: true },
+          include: {
+            product: true,
+            productSize: true,
+            productColor: true,
+          },
         },
       },
     });
@@ -41,18 +45,33 @@ const createRazorpayOrder = async (req, res) => {
         message: "Cart is empty",
       });
     }
+    // Validate stock and calculate total
+    let totalAmount = 0;
     for (const item of cart.items) {
-      if (item.quantity > item.product.stockAvailable) {
+      // Get price from productSize if available, otherwise skip
+      const itemPrice = item.productSize?.price || 0;
+
+      if (itemPrice === 0) {
         return res.status(400).json({
           success: false,
-          message: `Product "${item.product.name}" has only ${item.product.stockAvailable} items left`,
+          message: `Product "${item.product.name}" does not have a valid price`,
         });
       }
+
+      // Check stock from productSize if available, otherwise use product stock
+      const availableStock =
+        item.productSize?.stock ?? item.product.stockAvailable;
+
+      if (item.quantity > availableStock) {
+        return res.status(400).json({
+          success: false,
+          message: `Product "${item.product.name}" has only ${availableStock} items left`,
+        });
+      }
+
+      totalAmount += item.quantity * itemPrice;
     }
-    const totalAmount = cart.items.reduce(
-      (sum, item) => sum + item.quantity * item.product.price,
-      0
-    );
+
     if (totalAmount <= 0) {
       return res.status(400).json({
         success: false,
@@ -69,7 +88,7 @@ const createRazorpayOrder = async (req, res) => {
           create: cart.items.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
-            price: item.product.price,
+            price: item.productSize?.price || 0,
           })),
         },
         history: {
@@ -174,15 +193,40 @@ const verifyRazorpayPayment = async (req, res) => {
         newStatus: "CONFIRMED",
       },
     });
+
+    // Fetch cart before stock decrement to access cart items
+    const cart = await prisma.cart.findUnique({
+      where: { userId },
+      include: {
+        items: true,
+      },
+    });
+
     for (const item of order.items) {
-      await prisma.product.update({
-        where: { id: item.productId },
-        data: {
-          stockAvailable: { decrement: item.quantity },
-        },
-      });
+      // If there's a productSizeId in the original cart item, decrement size stock
+      const cartItem = cart?.items.find(
+        (ci) => ci.productId === item.productId
+      );
+
+      if (cartItem?.productSizeId) {
+        await prisma.productSize.update({
+          where: { id: cartItem.productSizeId },
+          data: {
+            stock: { decrement: item.quantity },
+          },
+        });
+      } else {
+        // Fallback to product stock if no size variant
+        await prisma.product.update({
+          where: { id: item.productId },
+          data: {
+            stockAvailable: { decrement: item.quantity },
+          },
+        });
+      }
     }
-    const cart = await prisma.cart.findUnique({ where: { userId } });
+
+    // Clear cart items after successful payment
     if (cart) {
       await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
     }

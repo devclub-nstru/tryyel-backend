@@ -90,24 +90,55 @@ const placeOrder = async (req, res) => {
 const getUserOrders = async (req, res) => {
   try {
     const userId = req.user.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const totalOrders = await prisma.order.count({
+      where: { userId },
+    });
+
     const orders = await prisma.order.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
-      include: {
-        items: { include: { product: true } },
-        address: true,
-        history: true,
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        total: true,
+        status: true,
+        createdAt: true,
+        items: {
+          select: {
+            quantity: true,
+            product: {
+              select: {
+                name: true,
+                imageUrl: true,
+              },
+            },
+          },
+        },
       },
     });
+
     if (!orders) {
       return res
         .status(400)
         .json({ success: false, message: "Unable to get user orders" });
     }
+
     return res.status(200).json({
       success: true,
       message: "Successfully fetched user orders",
       data: orders,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalOrders / limit),
+        totalOrders,
+        hasMore: page * limit < totalOrders,
+      },
     });
   } catch (error) {
     console.log("Error in getting user orders ", error);
