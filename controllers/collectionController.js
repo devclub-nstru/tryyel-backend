@@ -85,7 +85,6 @@ const getCollections = async (req, res) => {
           });
         });
 
-        // Calculate discount
         let discount = 0;
         const finalPrice = minPrice === Infinity ? 0 : minPrice;
         if (correspondingOriginalPrice > finalPrice) {
